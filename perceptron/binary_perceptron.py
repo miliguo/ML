@@ -6,15 +6,14 @@
 # @Last modified time: 08-11-16
 
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import cv2
 import random
 import time
-
-from sklearn.cross_validation import train_test_split
+from mnist import loadDataSet
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-
 
 class Perceptron(object):
 
@@ -23,7 +22,7 @@ class Perceptron(object):
         self.max_iteration = 5000
 
     def predict_(self, x):
-        wx = sum([self.w[j] * x[j] for j in xrange(len(self.w))])
+        wx = sum([self.w[j] * x[j] for j in range(len(self.w))])
         return int(wx > 0)
 
     def train(self, features, labels):
@@ -37,7 +36,7 @@ class Perceptron(object):
             x = list(features[index])
             x.append(1.0)
             y = 2 * labels[index] - 1
-            wx = sum([self.w[j] * x[j] for j in xrange(len(self.w))])
+            wx = sum([self.w[j] * x[j] for j in range(len(self.w))])
 
             if wx * y > 0:
                 correct_count += 1
@@ -45,7 +44,7 @@ class Perceptron(object):
                     break
                 continue
 
-            for i in xrange(len(self.w)):
+            for i in range(len(self.w)):
                 self.w[i] += self.learning_step * (y * x[i])
 
     def predict(self,features):
@@ -59,36 +58,27 @@ class Perceptron(object):
 
 if __name__ == '__main__':
 
-    print 'Start read data'
+    #print 'Start read data'
 
     time_1 = time.time()
-
-    raw_data = pd.read_csv('../data/train_binary.csv', header=0)
-    data = raw_data.values
-
-    imgs = data[0::, 1::]
-    labels = data[::, 0]
-
-    # 选取 2/3 数据作为训练集， 1/3 数据作为测试集
-    train_features, test_features, train_labels, test_labels = train_test_split(
-        imgs, labels, test_size=0.33, random_state=23323)
-    # print train_features.shape
-    # print train_features.shape
+    train_x, test_x, train_y, test_y = loadDataSet()
+    #print(train_x.shape)
+    #print(train_y)
 
     time_2 = time.time()
-    print 'read data cost ', time_2 - time_1, ' second', '\n'
+    #print 'read data cost ', time_2 - time_1, ' second', '\n'
 
-    print 'Start training'
+    #print 'Start training'
     p = Perceptron()
-    p.train(train_features, train_labels)
+    p.train(train_x, train_y)
 
     time_3 = time.time()
-    print 'training cost ', time_3 - time_2, ' second', '\n'
+    print('training cost ', time_3 - time_2, ' second', '\n')
 
-    print 'Start predicting'
-    test_predict = p.predict(test_features)
+    print('Start predicting')
+    test_predict = p.predict(test_x)
     time_4 = time.time()
-    print 'predicting cost ', time_4 - time_3, ' second', '\n'
+    print('predicting cost ', time_4 - time_3, ' second', '\n')
 
-    score = accuracy_score(test_labels, test_predict)
-    print "The accruacy socre is ", score
+    score = accuracy_score(test_y, test_predict)
+    print("The accruacy socre is ", score)
